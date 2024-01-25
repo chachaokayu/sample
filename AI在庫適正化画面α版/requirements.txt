@@ -1,3 +1,0 @@
-numpy==1.21.6
-jupyterlab==3.5.0
-pyinstaller
