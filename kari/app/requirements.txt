@@ -1,9 +1,0 @@
-python==3.10.8
-numpy==1.26.3
-matplotlib==3.8.2
-openpyxl==3.1.2
-pandas==2.2.0
-pyvista==0.43.2
-pyYaml==6.0.1
-streamlit==1.30.0
-stpyvista==0.0.14
