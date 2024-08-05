@@ -1,0 +1,57 @@
+-- SQL
+SELECT
+  k.kanban_serial
+ ,k.jisseki_dt
+ ,k.kanban_sts
+ ,k.seibishitsu_cd
+ ,k.maekoutei_cd
+ ,k.maekoutei_koujou_cd
+ ,k.atokoutei_cd
+ ,k.atokoutei_koujou_cd
+ ,k.hinban
+ ,h.denpyou_no
+ ,h.hacchu_sts
+ ,h.shiresaki_nm
+ ,h.shiresaki_koujou_nm
+ ,h.nounyu_ymd
+ ,h.nounyu_bin
+ ,h.hacchu_dt
+ ,h.kenshu_dt
+ ,CASE k.kanban_sts
+    WHEN '9' THEN  NULL
+    ELSE                h.kenshu_dt
+  END kenshu_dt
+ ,CASE k.kanban_sts
+    WHEN '3' THEN  k.jisseki_dt
+    ELSE                      NULL
+  END kaishu_dt
+FROM
+  links.tbt_kanban_kanri  k
+   LEFT OUTER JOIN
+  links.tbt_hacchu  h
+   ON
+    k.denpyou_no = h.denpyou_no
+WHERE
+  -- パーティション(かんばん管理.登録日時)を指定
+  '2023-05-01' <= k.create_dt  AND  k.create_dt < '2024-07-01'
+    AND
+  -- パーティション(発注.登録日時)を指定
+  '2023-05-01' <= h.create_dt  AND  h.create_dt < '2024-07-01'
+    AND
+  -- 仕入先工場(アイシン機工)
+  k.maekoutei_cd = '2038'
+    AND
+  -- 受入工場(アイシン安城第１工場)
+  k.seibishitsu_cd IN ('16', '1V', '1X', '1Y', '1Z', 'D6', 'L1', 'N3')
+    AND
+  -- 納入予定日
+  'YYYYMMDD' <= h.nounyu_ymd  AND  h.nounyu_ymd <= 'YYYYMMDD'
+    AND
+  k.hinban IN (
+'35771ECB010', 'G1131ECB010', 'G1131ECC010', '35771ECE010', 'G1131ECE010', '350738LA030', '353208LA040', '357098LA020', '357208LA040', '357608LA040', '321118LA010', '35703HRC010', '35703HRC020', '35076TBG010', '35077TBG010', '35320TBG010', '35702TBG010', '35703TBG150', '35722TBG010', '35771TBG010', '35795TBA040', '35703TBG020', '35771TBG020', '35703TBG160', '35771TBG030', '35722TBG030', '353208LA020', '357208LA020', '357608LA020', '350738LA050', '353208LA050', '357208LA050', '357608LA050', '3040237034D', '35077TBA010', '35309TBA010', '35663TBA020', '35714TBA010', '35722TBA060', '35795TBA010', '35703TBA300', '35771TBA270', '35703TBA330', '35771TBA300', '35703TBA400', '35703TBA410', '35703TBG070', '35771TBG070', '35795TBG010', '35703TBG040', '35771TBG040', '35320TBG040', '35703TBG090', '35771TBG090', '35703TBG110', '35771TBG110', '35703TBG170', '35703TBG190', '35771TBG160', '35703TBG100', '35771TBG100', '35703TBG200', '35703TBG240', '35772TBG020', '35772TBG030', '35703TBS010', '35714TBS010', '35663TBS010', '35795TBS010', '35722TBS010', '35795TBS020', '35309TBS010', '35762TBS010', '35703TBS020', '35077TBA030', '35714TBA030', '35722TBA040', '3475230A010', '35703TBA390', '35771TBA161', '35073TBG070', '35073TBG100', '35073TBG110', '321110LC010', '357218LA010', '357218LA030', '357228LA010', '357228LA020', '357318LA010', '357318LA020', '357328LA030', '357448LA050', '357718LA010', '357718LA020', '35795TBA040'
+  )
+ORDER BY 
+  h.nounyu_ymd
+ ,h.nounyu_bin
+ ,h.denpyou_no
+ ,k.hinban
