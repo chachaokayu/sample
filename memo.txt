@@ -1,0 +1,40 @@
+select TRIM(Y.品番,' ') 品番,Y.集計時間,入庫,出庫
+from(
+	select X.品番,X.集計時間,入庫,X.品番||X.集計時間 key
+	from (
+
+		select 品番,集計時間,品番||集計時間 key
+		from(
+			select 品番,TO_CHAR(TO_TIMESTAMP(substring(収集日時,1,14)||'00:00')) 集計時間
+			from T403物流情報_自動ラックQR_ALL_C)as x
+			group by 品番,集計時間,品番||集計時間)as X
+		
+		left join
+
+		(select 品番,集計時間,count(*) 入庫,品番||集計時間 key
+	 	 from (
+
+		 	select品番,TO_CHAR(TO_TIMESTAMP(substring(収集日時,1,14)||'00:00')) 集計時間
+			from T403物流情報_自動ラックQR_ALL_C
+			where イベント like '%入庫%')as A
+
+	 	 group by 品番,集計時間 )as a
+
+		on X.key=a.key )as Y
+
+	left join 
+
+	(select 品番,集計時間,count(*) 出庫,品番||集計時間 key
+	 from (
+
+		select品番,TO_CHAR(TO_TIMESTAMP(substring(収集日時,1,14)||'00:00')) 集計時間
+		from T403物流情報_自動ラックQR_ALL_C
+		where イベント like '%出庫%')as B
+
+	 group by 品番,集計時間)as b 
+
+	on Y.key=b.key
+
+----------------------------------------------------
+
+
